@@ -1,3 +1,8 @@
+/dist
+/server
+/log
+package-lock.json
+
 # Logs
 logs
 *.log
