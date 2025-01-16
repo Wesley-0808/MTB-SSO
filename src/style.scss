@@ -1,0 +1,189 @@
+.login-wechat-container {
+    height: 192px;
+    position: relative;
+    z-index: 2;
+}
+
+
+.ac-loading-view {
+    position: relative
+  }
+  
+  .ac-loading-view .loading-bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: hsla(0,0%,100%,.7);
+    z-index: 1
+  }
+
+  .ac-loading-view .status-bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: hsla(0, 0%, 100%, 0.285);
+  }
+  
+  .icon-loading {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -12px 0 0 -12px;
+    animation: spin 2s linear infinite;
+    z-index: 3
+  }
+  
+  @keyframes spin {
+    0% {
+        transform: rotate(0deg)
+    }
+  
+    to {
+        transform: rotate(1turn)
+    }
+  }
+
+.login-wechat-loading-page {
+    margin-top: 8px;
+    .wechat-error {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        .wechat-error-text {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 20px;
+        }
+        .wechat-error-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .wechat-error-button:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+        .wechat-error-button:active {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+    }
+    .wechat-scaned {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        .status-icon{
+            margin: 12px 0px;
+            >svg{
+                width: 48px;
+                height: 48px;
+            }
+        }
+        .status-text {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 20px;
+            text-align: center;
+        }
+    }
+    .loading-bg {
+        width: 192px;
+        height: 192px;
+        border-radius: 4px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f5f5f5;
+    }
+    .status-bg {
+        width: 192px;
+        height: 192px;
+        border-radius: 4px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgb(250 250 250 / 90%);
+        z-index: 2;
+    }
+    .icon-loading {
+        top: 50%;
+    }
+}
+
+.changelogEntrance{
+    margin-left: 4px;
+    cursor: pointer;
+    position: relative;
+    &::after{
+        content: " ";
+        height: 2px;
+        background-color: #f5f5f5;
+        width: 0px;
+        position: absolute;
+        bottom: -1px;
+        left: 50%;
+        transition: 0.28s width cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translate(-50%, 0);
+    }
+    &:hover{
+        &::after{
+            width: 100%;
+        }
+    }
+}
+
+.transparentContainer{
+    width: 72%;
+    margin: auto;
+    padding: 48px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: auto;
+    .BackToIndex {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        color: #fff;
+        background-color: transparent;
+        border: 1px solid #fff;
+        padding: 16px;
+        border-radius: 5px;
+        transition: 0.28s all cubic-bezier(0.22, 0.61, 0.36, 1);
+        cursor: pointer;
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+    .innerHolder {
+        display: flex;
+        width: 100%;
+        height: 555px;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 36px 20px;
+        flex-direction: column;
+        border-radius: 8px;
+    }
+}
