@@ -5,7 +5,7 @@ import RenderComponents from './components/index.tsx'
 const routercfg = [
     { path: '/login', component: () => import('./pages/login.vue') },
     { path: '/forget-password', component: () => import('./pages/forgetpws.vue') },
-    { path: '/changepassword', component: () => import('./pages/changepassword.vue') },
+    { path: '/change-password', component: () => import('./pages/changepassword.vue') },
 ]
 
 const routes = [

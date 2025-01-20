@@ -49,6 +49,9 @@
 
 .login-wechat-loading-page {
     margin-top: 8px;
+    & *{
+        user-select: none;
+    }
     .wechat-error {
         position: absolute;
         left: 50%;
@@ -128,6 +131,95 @@
     }
     .icon-loading {
         top: 50%;
+    }
+}
+
+.bindWechatDialog {
+    position: relative;
+    & *{
+        user-select: none;
+    }
+    .loading-bg {
+        width: 192px;
+        height: 192px;
+        border-radius: 4px;
+        position: absolute;
+        left: 50%;
+        top: 0px;
+        transform: translate(-50%, 0px);
+        background-color: #f5f5f5;
+    }
+    .wechat-scaned {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 80%;
+        .status-icon{
+            margin: 12px 0px;
+            >svg{
+                width: 48px;
+                height: 48px;
+            }
+        }
+        .status-text {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 20px;
+            text-align: center;
+        }
+    }
+    .wechat-error {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 80%;
+        .wechat-error-text {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 20px;
+            text-align: center;
+        }
+        .wechat-error-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .wechat-error-button:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+        .wechat-error-button:active {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+    }
+    .status-bg {
+        width: 192px;
+        height: 192px;
+        border-radius: 4px;
+        position: absolute;
+        left: 50%;
+        top: 0px;
+        transform: translate(-50%, 0px);
+        background-color: rgb(250 250 250 / 90%);
+        z-index: 2;
     }
 }
 
