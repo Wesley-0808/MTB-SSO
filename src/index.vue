@@ -38,6 +38,7 @@ import svgList from "./components/svg.vue";
 import config from "./config";
 import { useRoute, useRouter } from 'vue-router'
 import { MessagePlugin } from "tdesign-vue-next";
+import { logout } from "./components/hooks.ts";
 
 const already_login = ref(false);
 const param = ref({});
@@ -86,36 +87,6 @@ const loadParam = () => {
     })
 }
 
-/**
- * @logout
- * @登出
- */
-const logout = () => {
-    var token = localStorage.getItem("token") ?? "";
-    fetch(config.api + "/logout", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "token": token
-        },
-    })
-    .then( res => res.json() )
-    .then((result) => {
-        if (result.errcode == 0) {
-            MessagePlugin.success("退登成功！",4000);
-            localStorage.removeItem("loginstate");
-            localStorage.removeItem("token");
-            router.push("/")
-            location.reload()
-        } else {
-            MessagePlugin.error("退登失败：" + result.errmsg);
-        }
-    })
-    .catch((err) => {
-        console.error("请求错误:",err)
-    })
-}
-
 const init = () => {
     // 初始化一些内容
     already_login.value = false;
@@ -140,6 +111,7 @@ const init = () => {
                 if (!result.data.verify) {
                     localStorage.removeItem("loginstate");
                     localStorage.removeItem("token");
+                    return;
                 }
                 // 获取用户名称
                 fetch(config.api + "/getLoginUserInfo",{

@@ -4267,3 +4267,9 @@ input {
   color: #f04848;
   font-size: 14px;
 }
+
+.action {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

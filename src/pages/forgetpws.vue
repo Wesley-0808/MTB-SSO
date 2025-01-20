@@ -19,7 +19,7 @@
                 p-id="2379"
                 fill="#ffffff"></path>
         </svg>
-        <span style="word-break: keep-all; letter-spacing: 3px; margin-left: 5px"> 返回 </span>
+        <span style="word-break: keep-all; letter-spacing: 3px; margin-left: 5px" @click="back"> 返回 </span>
     </button>
     <div class="reset-password">
         <h1 class="mtb-page-title page-title mtb-title-small">重置密码</h1>
@@ -52,22 +52,15 @@
         <div class="mtb-service-links">
             <div class="mtb-divider"><span></span></div>
             <p style="padding-bottom: 4px">
-                找回密码遇到问题？
-                <a
-                    href="javascript:void(0)"
-                    target="_blank"
-                    class="mtb-link mtb-link-primary ml-2 mtb-link-primary"
-                    >联系技术人员</a
-                >
-            </p>
-            <p style="padding-bottom: 4px">
-                没有账号？
-                <a
-                    href="javascript:void(0)"
-                    target="_blank"
-                    class="mtb-link mtb-link-primary ml-2 mtb-link-primary"
-                    >联系技术人员</a
-                >
+                没有账号？找回密码遇到问题？
+                <t-popup>
+                    <template #content>
+                        <div>
+                            <img style="width: 235px;" src="../assets/WxCode.jpg">
+                        </div>
+                    </template>
+                    <a href="javascript:void(0)" class="mtb-link mtb-link-primary ml-2 mtb-link-primary">联系技术人员</a>
+                </t-popup>
             </p>
         </div>
     </div>

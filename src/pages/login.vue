@@ -140,19 +140,9 @@
                             </button>
                         </div>
                     </div>
-                    <!---->
+                    <!-- 扫码登录  -->
                     <div class="scan_login_content" v-show="tab_items[1].active">
-                        <!-- <div
-                            style="
-                                display: flex;
-                                flex-direction: column;
-                                align-items: center;
-                                margin-top: 26px;
-                            ">
-                            
-                        </div> -->
                         <!---->
-
                         <div>
                             <div
                                 class="ac-loading-view login-wechat-loading-page"
@@ -209,9 +199,7 @@
                 </div>
             </div>
         </div>
-        <!---->
-        <!-- login -->
-        <!---->
+        <!-- 已登录 -->
         <div class="mtb-tab-container" v-else>
             <div class="mtb-center">
                 <div class="mtb-tab-panel">
@@ -252,7 +240,16 @@
                             <!---->
                             <button
                                 aria-label="操作微信"
-                                @click="goToChangePWS"
+                                :style="
+                                    !userInfo?.openid ? { background: 'transparent', color: '#07c160', border: '3px solid #07c160', fontWeight: 'bold' }
+                                    : { background: '#07c160', color: '#fff', border: '3px solid #07c160', fontWeight: 'bold' }"
+                                @click="() => { !userInfo?.openid ? bindWechat() : unbindWechat() }"
+                                class="btn login-btn success lg mtb-btn mtb-btn-black mtb-btn-success mtb-btn-large mtb-btn-block"
+                            >
+                                <span>{{ !userInfo?.openid ? '绑定微信' : '解绑微信' }}</span>
+                            </button>
+                            <!-- <button
+                                aria-label="操作微信"
                                 style="
                                     background: transparent;
                                     border: 3px solid #07c160;
@@ -260,12 +257,12 @@
                                     font-weight: bold;
                                 "
                                 v-if="userInfo?.openid === ''"
+                                @click=""
                                 class="btn login-btn success lg mtb-btn mtb-btn-black mtb-btn-success mtb-btn-large mtb-btn-block">
                                 <span> 绑定微信 </span>
                             </button>
                             <button
                                 aria-label="操作微信"
-                                @click="goToChangePWS"
                                 style="
                                     background: #07c160;
                                     border: 3px solid #07c160;
@@ -273,9 +270,10 @@
                                     font-weight: bold;
                                 "
                                 v-else
+                                @click="unbindWechat"
                                 class="btn login-btn success lg mtb-btn mtb-btn-black mtb-btn-success mtb-btn-large mtb-btn-block">
                                 <span> 解绑微信 </span>
-                            </button>
+                            </button> -->
                             <!---->
                             <div style="display: flex;flex-direction: row;gap: 8px;">
                                 <button
@@ -293,7 +291,7 @@
                                 <!---->
                                 <button
                                     aria-label="退出登录"
-                                    @click="logout"
+                                    @click="logoutF"
                                     style="
                                         background: transparent;
                                         border: 3px solid #d32029;
@@ -314,12 +312,100 @@
             <div class="mtb-divider"><span></span></div>
             <p style="padding-bottom: 4px">
                 遇到问题？
-                <a href="javascript:void(0)" class="mtb-link mtb-link-primary ml-2 mtb-link-primary"
-                    >请联系技术人员</a
-                >
+                <t-popup>
+                    <template #content>
+                        <div>
+                            <img style="width: 235px;" src="../assets/WxCode.jpg">
+                        </div>
+                    </template>
+                    <a href="javascript:void(0)" class="mtb-link mtb-link-primary ml-2 mtb-link-primary">联系技术人员</a>
+                </t-popup>
             </p>
         </div>
+        <!---->
+        <div class="login-loading" v-if="loading">
+            <div class="icon">
+                <svg>
+                    <use xlink:href="#loading"></use>
+                </svg>
+            </div>
+            <div class="text">
+                <div>加载中...</div>
+            </div>
+        </div>
     </div>
+    <!--Dialog-->
+    <t-dialog
+        v-model:visible="DialogVisible"
+        :closeBtn="false"
+        :closeOnEscKeydown="false"
+        :closeOnOverlayClick="false"
+        ref="BindWechatDialog"
+        >
+        <template #header>
+            <span>{{ DialogType === 'bind' ? '绑定' : '解绑' }}微信</span>
+        </template>
+        <template #cancelBtn>
+            <t-button v-if="DialogType === 'unbind'" variant="outline" theme="primary" @click="DialogVisible = false">我再想想</t-button>
+        </template>
+        <template #confirmBtn>
+            <t-button v-if="DialogType === 'bind'" @click="DialogVisible = false">关闭弹窗</t-button>
+            <t-button v-else @click="confirmUnbind">确定解绑</t-button>
+        </template>
+        <template #body>
+            <div v-if="DialogType === 'bind'" class="bindWechatDialog">
+                <div v-if="DialogInfo.status === 0" class="loading-bg">
+                    <svg aria-hidden="true" class="icon-loading ac-svg-icon" style="width: 24px; height: 24px;"><use xlink:href="#loading-retry"></use></svg>
+                </div>
+                <div v-else></div>
+                <!---->
+                <div id="wechat_login" class="login-wechat-container">
+                    <div class="wrp_code" v-if="DialogInfo.img">
+                      <img style="width: 192px;height: 192px;margin: 0 auto;border-width: 0;" :src="DialogInfo.img">
+                    </div>
+                </div>
+                <!---->
+                <div v-if="DialogInfo.status !== 0 && DialogInfo.status !== 400 && DialogInfo.status !== 403" class="status-bg">
+                <!---->
+                <div class="wechat-error" v-if="DialogInfo.status === 404 || DialogInfo.status === 405">
+                    <div class="wechat-error-text">{{ DialogInfo.errmsg }}</div>
+                    <div class="wechat-error-button mt-2" @click="getBindMiniprogramCode">
+                        <svg aria-hidden="true" class="ac-wechat-retry-icon ac-svg-icon" style="width: 18px; height: 18px;">
+                            <use xlink:href="#retry"></use>
+                        </svg>
+                    </div>
+                </div>
+                <!---->
+                <div class="wechat-scaned" v-if="DialogInfo.status === 401">
+                    <div class="status-icon">
+                        <svg aria-hidden="true">
+                            <use xlink:href="#success"></use>
+                        </svg>
+                    </div>
+                    <div class="status-text">扫描成功，请点击「绑定」进行绑定</div>
+                </div>
+                <!---->
+                <div class="wechat-scaned" v-if="DialogInfo.status === 402">
+                    <div class="status-icon">
+                        <svg aria-hidden="true">
+                            <use xlink:href="#error"></use>
+                        </svg>
+                    </div>
+                    <div class="status-text">绑定失败，您已取消绑定</div>
+                </div>
+                </div>
+                <p style="font-size: 16px;font-style: normal;font-weight: 600;line-height: 24px;color: rgba(0, 0, 0, 0.85);text-align: center;margin-top: 12px;">
+                    请使用小程序 或 微信 扫码
+                    <br/>
+                    进行账号绑定
+                </p>
+            </div>
+            <!--解除绑定-->
+            <div v-else>
+                <div> 确定解绑吗？如需再次使用 微信登录 需要重新进行绑定！ </div>
+            </div>
+        </template>
+    </t-dialog>
 </template>
 
 <script setup lang="ts">
@@ -328,12 +414,21 @@ import { MessagePlugin } from "tdesign-vue-next";
 import { api, wxApi, jump_defaultURL } from "../config";
 import localRouter from "../router.ts";
 import { type ParamerData } from "../types.ts"
-
+import { logout, checkMiniprogramCodeStatus } from "../components/hooks.ts";
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 
+const BindWechatDialog = ref("")
+const DialogVisible = ref(false)
+const DialogType = ref("bind")// bind || unbind
+const DialogInfo = reactive({
+    key: "",
+    img: "",
+    status: 0,
+    errmsg: "",
+})
 const getQueryVariable = () => {
     const key = Object.keys(route.query)
     let dataList:{[key:string]:string} = {}
@@ -411,6 +506,7 @@ const form_data = reactive({
     account: "",
     password: "",
 })
+var checkCodeStatus:checkMiniprogramCodeStatus
 const getMiniprogramCode = () => {
     miniprogramCode.loading = true
     miniprogramCode.error = false
@@ -418,7 +514,7 @@ const getMiniprogramCode = () => {
     miniprogramCode.cancel = false
     miniprogramCode.key = ""
     miniprogramCode.img = ""
-    clearInterval(miniprogramCode.interval)
+    // clearInterval(miniprogramCode.interval)
     // 请求
     fetch(wxApi + "/getMiniProgramCode", {
         method: "GET",
@@ -434,11 +530,47 @@ const getMiniprogramCode = () => {
         }
         miniprogramCode.key = res.data.key
         miniprogramCode.img = res.data.img_base64
-        console.log(res)
+        if (!tab_items[1].active) return;
         // 开始循环检测key
-        miniprogramCode.interval = setInterval(() => {
-            checkCodeStatus()
-        }, 1000)
+        checkCodeStatus = new checkMiniprogramCodeStatus(miniprogramCode.key,(data: any) => {
+            if (data.status === 405) {
+                checkCodeStatus?.stop()
+                // clearInterval(miniprogramCode.interval)
+            }
+            // 已扫码，未确认
+            if (data.status === 401) {
+                miniprogramCode.scaned = true
+                miniprogramCode.cancel = false
+            }
+            // 已扫码，但取消了
+            if (data.status === 402) {
+                miniprogramCode.scaned = false
+                miniprogramCode.cancel = true
+            }
+            if (data.status === 403) {
+                // clearInterval(miniprogramCode.interval)
+                checkCodeStatus?.stop()
+                miniprogramCode.cancel = false
+                miniprogramCode.scaned = false
+                const { class:classs, code, group, id, name, openid, token } = data.data
+                // 登录成功
+                MessagePlugin.success("登录成功，请稍后...");
+                // 跳转
+                setTimeout(() => {
+                    jump__(
+                        param.value.backUrl,
+                        token,
+                        code,
+                        name,
+                        classs,
+                    );
+                }, 1500);
+            }
+        },()=>{},(err: any) => {
+            MessagePlugin.error("请求失败，" + (err.errmsg ?? err ?? "未知错误"), 3000)
+            console.error("发生错误，终止循环")
+        })
+        checkCodeStatus?.start()
     })
     .catch((err) => {
         console.log(err)
@@ -472,70 +604,6 @@ const goToForgetPWS = () => {
     localRouter.push({ path: "/forget-password" });
 };
 
-// 检测小程序码（扫码）状态
-// 关于Key码的Status值定义说明：400-未扫码（初始） | 401-已扫码，未确认 | 402-已扫码，操作取消 | 403-已扫码，已确认 | 404-已扫码，但由于某种原因无法完成授权 | 405-不存在（已过期）
-const checkCodeStatus = () => {
-    if (checkCodeStatusLock.value || !tab_items[1].active) {
-        return;
-    }
-    checkCodeStatusLock.value = true
-    fetch(wxApi + "/checkCodeStatus", {
-        method: "POST",
-        body: `key=${miniprogramCode.key}`,
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-    })
-    .then( res => res.json() )
-    .then((res) => {
-        if (res.errcode !== 0) {
-            MessagePlugin.error("请求失败，" + (res.errmsg ?? "未知错误"), 3000)
-            console.error("发生错误，终止循环")
-            return;
-        }
-        console.log(res)
-        // 不存在
-        if (res.data.status === 405) {
-            clearInterval(miniprogramCode.interval)
-        }
-        // 已扫码，未确认
-        if (res.data.status === 401) {
-            miniprogramCode.scaned = true
-            miniprogramCode.cancel = false
-        }
-        // 已扫码，但取消了
-        if (res.data.status === 402) {
-            miniprogramCode.scaned = false
-            miniprogramCode.cancel = true
-        }
-        if (res.data.status === 403) {
-            clearInterval(miniprogramCode.interval)
-            miniprogramCode.cancel = false
-            miniprogramCode.scaned = false
-            const { class:classs, code, group, id, name, openid, token } = res.data.data
-            // 登录成功
-            MessagePlugin.success("登录成功，请稍后...");
-            // 跳转
-            setTimeout(() => {
-                jump__(
-                    param.value.backUrl,
-                    token,
-                    code,
-                    name,
-                    classs,
-                );
-            }, 1500);
-        }
-    })
-    .catch((err) => {
-        console.log(err)
-        MessagePlugin.error("请求失败，" + err, 3000)
-    })
-    .finally(() => {
-        checkCodeStatusLock.value = false
-    })
-}
-
 const account_input_focus = () => {
     form_state.account_input.state = "normal";
     form_state.account_input.inerror = false;
@@ -567,7 +635,8 @@ const handleClickTabs = (e: number) => {
             element?.onChange?.()
         }
     }
-    clearInterval(miniprogramCode.interval)
+    checkCodeStatus?.stop()
+    // clearInterval(miniprogramCode.interval)
 }
 
 /**
@@ -604,7 +673,6 @@ const login = () => {
             loading.value = false;
             var result = JSON.parse(xhr.response.replace(/\r|\n/gi, ""));
             if (result.errcode == 0) {
-                console.log(result);
                 var userdata = result.data;
                 token.value = result.data.token;
                 localStorage.setItem("loginstate", "true");
@@ -647,18 +715,9 @@ const login = () => {
     lock.value = false;
 }
 
-/**
- * @logout
- * @登出
- */
-const logout = () => {
-    localRouter.replace({
-        path: "/",
-        query: {
-            actionType: "logout"
-        }
-    })
-    location.reload()
+const logoutF = () => {
+    loading.value = true;
+    logout()
 }
 
 /**
@@ -674,7 +733,7 @@ const goToChangePWS = () => {
  * @登录后带参跳转
  */
 const jump__ = (URL: string | null, TOKEN: string, CODE: string, NAME: string, CLASS: string) => {
-    const BACKURL = URL || jump_defaultURL;
+    const BACKURL = URL || param.value.backUrl || jump_defaultURL;
     const TIMESTAMP = Date.now();
     const Paramers: Record<string, string | number> = {
         user_token: TOKEN,
@@ -702,6 +761,7 @@ const jump__ = (URL: string | null, TOKEN: string, CODE: string, NAME: string, C
  * @重新授权
  */
 const relogin = () => {
+    loading.value = true;
     var token = localStorage.getItem("token") ?? "";
     if (!token) {
         MessagePlugin.error("token不存在，请重新登录");
@@ -740,8 +800,120 @@ const relogin = () => {
     .catch((err) => {
         console.error("请求错误:",err)
     })
+    .finally(() => {
+        loading.value = false;
+    })
 }
 
+const getBindMiniprogramCode = () => {
+    fetch(wxApi + `/getMiniProgramCode?type=bind&uid=${userInfo.value?.uid ?? ""}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    })
+    .then( res => res.json() )
+    .then((res) => {
+        if (res.errcode !== 0) {
+            MessagePlugin.error("请求失败，" + (res.errmsg ?? "未知错误"), 3000)
+            return;
+        }
+        const { img_base64, key } = res.data
+        DialogInfo.img = img_base64
+        DialogInfo.key = key
+        DialogInfo.status = 400
+        // 开始循环检测key
+        checkCodeStatus = new checkMiniprogramCodeStatus(DialogInfo.key,(data: any) => {
+            if (!BindWechatDialog.value) {
+                checkCodeStatus?.stop()
+                return;
+            }
+            // 不存在
+            if (data.status === 405) {
+                checkCodeStatus?.stop()
+                DialogInfo.status = 405
+                DialogInfo.errmsg = "小程序码已过期，请重新获取！"
+            }
+            // 已扫码，未确认
+            if (data.status === 401) {
+                DialogInfo.status = 401
+            }
+            // 已扫码，但取消了
+            if (data.status === 402) {
+                DialogInfo.status = 402
+            }
+            if (data.status === 403) {
+                // 绑定成功
+                DialogInfo.status = 403
+                checkCodeStatus?.stop()
+                MessagePlugin.success("绑定成功，请重新登录！",3500);
+                // 登出
+                setTimeout(() => {
+                    logout()
+                }, 2000);
+            }
+        },()=>{},(err: any) => {
+            DialogInfo.status = 404
+            DialogInfo.errmsg = err.errmsg ?? err ?? "未知错误"
+            MessagePlugin.error("请求失败，" + (err.errmsg ?? err ?? "未知错误"), 3000)
+            console.error("发生错误，终止循环")
+        })
+        checkCodeStatus?.start()
+    })
+    .catch((err) => {
+        console.log(err)
+        MessagePlugin.error("请求失败，" + err, 3000)
+        DialogInfo.img = ""
+        DialogInfo.status = 404
+        DialogInfo.errmsg = err
+    })
+    .finally(() => {
+        DialogVisible.value = false;
+    })
+}
+
+const bindWechat = () => {
+    // 先打开弹窗
+    DialogVisible.value = true;
+    DialogType.value = "bind"
+    DialogInfo.img = ""
+    DialogInfo.status = 0
+    // 再获取小程序码
+    getBindMiniprogramCode()
+}
+
+const unbindWechat = () => {
+    DialogVisible.value = true;
+    DialogType.value = "unbind"
+}
+
+const confirmUnbind = () => {
+    fetch(wxApi + `/unbind`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `openid=${userInfo.value?.openid ?? ""}`
+    })
+    .then( res => res.json() )
+    .then((res) => {
+        if (res.errcode !== 0) {
+            MessagePlugin.error("请求失败，" + (res.errmsg ?? "未知错误"), 3000)
+            return;
+        }
+        MessagePlugin.success("解绑成功，请重新登录！",3500);
+        setTimeout(() => {
+            logout()
+        }, 2000);
+    })
+    .catch((err) => {
+        console.log(err)
+        MessagePlugin.error("请求失败，" + err, 3000)
+    })
+    .finally(() => {
+        DialogVisible.value = false;
+    })
+}
 
 onMounted(() => {
     
@@ -754,3 +926,31 @@ export default {
     name: "LoGin",
 };
 </script>
+
+<style lang="scss">
+.login-loading {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(0 0 0 / 60%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .icon {
+        >svg {
+            width: 90px;
+            height: 90px;
+        }
+    }
+    .text {
+        font-size: 34px;
+        padding: 24px 0px;
+        color: #f5f5f5;
+        letter-spacing: 0.2px;
+        font-weight: 500;
+    }
+}
+</style>
