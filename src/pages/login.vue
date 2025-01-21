@@ -554,6 +554,8 @@ const getMiniprogramCode = () => {
                 const { class:classs, code, group, id, name, openid, token } = data.data
                 // 登录成功
                 MessagePlugin.success("登录成功，请稍后...");
+                localStorage.setItem("loginstate", "true");
+                localStorage.setItem("token", token)
                 // 跳转
                 setTimeout(() => {
                     jump__(

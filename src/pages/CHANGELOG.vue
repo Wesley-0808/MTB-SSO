@@ -7,9 +7,10 @@
             <!---->
             <ul class="changelog-list">
                 <li>
-                    <div class="changelog-date">v2.0.1 ( 2025/01/17 )</div>
+                    <div class="changelog-date">v2.0.2 ( 2025/01/21 )</div>
                     <!---->
                     <ul class="changelog-item">
+                        <li>支持微信小程序绑定和登录，支持在页面上操作解绑</li>
                         <li>Fetch重构</li>
                         <li>小程序侧API对接优化</li>
                         <li>OA侧对接优化</li>

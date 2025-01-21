@@ -227,9 +227,15 @@
     margin-left: 4px;
     cursor: pointer;
     position: relative;
+    & a {
+        text-decoration: none;
+        &:hover {
+            text-decoration: none !important;
+        }
+    }
     &::after{
         content: " ";
-        height: 2px;
+        height: 1.25px;
         background-color: #f5f5f5;
         width: 0px;
         position: absolute;
