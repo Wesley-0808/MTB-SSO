@@ -491,7 +491,6 @@ const form_state = reactive({
         showpws: false,
     },
 })
-const checkCodeStatusLock = ref(false)
 const miniprogramCode = reactive({
     key: "",
     img: "",
